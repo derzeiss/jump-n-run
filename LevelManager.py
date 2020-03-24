@@ -1,6 +1,8 @@
-from config import *
+import pygame
+
 from Block import Block
 from Level import Level
+from config import COL_BLOCK, COL_DEADLY, BLOCK_SIZE
 
 IMAGE_SOLID = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE))
 IMAGE_SOLID.fill(COL_BLOCK)
@@ -14,9 +16,10 @@ class LevelManager:
         self.__level = None
 
     @staticmethod
-    def load_level(path: str = './level/current.txt') -> Level:
+    def load_level(path: str) -> Level:
         blocks = pygame.sprite.Group()
         length = 0
+        spawn = (0, 0)
         y = -1
         with open(path) as f:
             for row in f:
@@ -29,6 +32,9 @@ class LevelManager:
                         image = IMAGE_SOLID
                     elif block == '2':
                         image = IMAGE_DEADLY
+                    elif block == 'x':
+                        spawn = (x * BLOCK_SIZE, y * BLOCK_SIZE)
+                        continue
                     else:
                         continue
                     sprite = Block(int(block), rect, image)
@@ -37,4 +43,4 @@ class LevelManager:
                 if x > length:
                     length = x
 
-            return Level(blocks, length * BLOCK_SIZE)
+            return Level(blocks, length * BLOCK_SIZE, spawn)

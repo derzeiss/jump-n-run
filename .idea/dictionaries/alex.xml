@@ -1,9 +1,14 @@
 <component name="ProjectDictionaryState">
   <dictionary name="alex">
     <words>
+      <w>colorkey</w>
+      <w>consolas</w>
       <w>pygame</w>
       <w>respawn</w>
+      <w>solidbody</w>
       <w>topleft</w>
+      <w>xcoords</w>
+      <w>ycoords</w>
     </words>
   </dictionary>
 </component>

@@ -18,15 +18,15 @@ class Camera(pygame.Surface):
         self.__max_x: int = 0
         self.set_level(level)  # to set max_x
 
-    def get_pos(self):
+    def get_pos(self) -> (int, int):
         return self.__x, self.__y
 
-    def get_pos_inverted(self):
+    def get_pos_inverted(self) -> (int, int):
         return self.__x * -1, self.__y
 
-    def set_level(self, level: Level):
+    def set_level(self, level: Level) -> None:
         self.__level = level
         self.__max_x = -self.__level.get_length() + WIDTH
 
-    def update(self):
+    def update(self) -> None:
         self.__x = max(self.__max_x, min(0, WIDTH_2 - self.__player.rect.x))

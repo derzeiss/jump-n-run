@@ -32,12 +32,7 @@ BLOCK_AIR = 0
 BLOCK_SOLID = 1
 BLOCK_DEADLY = 2
 
-# init font
+# init pygame stuff
 pygame.font.init()
 FONT = pygame.font.SysFont('monospace', 24)
-
-# init pygame surfaces
-BG = pygame.Surface((WIDTH, HEIGHT))
-BG.fill(COL_BG)
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-SCREEN.blit(BG, (0, 0))

@@ -1,5 +1,5 @@
-from config import *
 from Keys import Keys
+from config import *
 
 
 class Player(pygame.sprite.Sprite):
@@ -12,6 +12,8 @@ class Player(pygame.sprite.Sprite):
         # must be public as these are pygame.sprite.Sprite props
         self.rect = rect
         self.image = image
+
+        self.__spawn_point = (0, 0)
 
         self.__in_air: bool = False
         self.__vx: int = 0
@@ -82,12 +84,10 @@ class Player(pygame.sprite.Sprite):
                     if self.__vx > 0:
                         self.rect.right = block.rect.left
                         should_handle = True
-                        print('to left')
                 else:
                     if self.__vx < 0:
                         self.rect.left = block.rect.right
                         should_handle = True
-                        print('to right')
                 if should_handle:
                     self.__ax = 0
                     self.__vx = 0
@@ -113,9 +113,13 @@ class Player(pygame.sprite.Sprite):
             self.__ax = 0
             self.__vx = 0
 
+    def set_spawn_point(self, point: (int, int)):
+        self.__spawn_point = point
+
     def respawn(self):
-        self.rect.topleft = (PLAYER_WIDTH * 1.3, 0)
+        self.rect.topleft = self.__spawn_point
         self.__ax = self.__ay = self.__vx = self.__vy = 0
+        self.__in_air = True
 
     def render_player_debug_info(self):
         def write(text, y): surface.blit(FONT.render(text, True, COL_PLAYER), (0, y))
