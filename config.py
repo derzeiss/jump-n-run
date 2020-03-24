@@ -1,6 +1,7 @@
 import pygame
 
 # GAME
+DEBUG = False
 WIDTH: int = 400
 HEIGHT: int = 300
 
@@ -33,6 +34,7 @@ BLOCK_SOLID = 1
 BLOCK_DEADLY = 2
 
 # init pygame stuff
-pygame.font.init()
-FONT = pygame.font.SysFont('monospace', 24)
+if DEBUG:
+    pygame.font.init()
+    FONT = pygame.font.SysFont('monospace', 24)
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))

@@ -6,14 +6,15 @@ from Keys import Keys
 from LevelManager import LevelManager
 from Player import Player
 from config import \
-    SCREEN, \
     COL_BG, \
     COL_PLAYER, \
+    DEBUG, \
     PLAYER_WIDTH, \
     PLAYER_HEIGHT, \
     PLAYER1_KEY_LEFT, \
     PLAYER1_KEY_RIGHT, \
-    PLAYER1_KEY_JUMP
+    PLAYER1_KEY_JUMP, \
+    SCREEN
 
 
 class Game:
@@ -33,6 +34,9 @@ class Game:
         self.__bg = None
 
     def load_level(self, path) -> None:
+        if self.__level:
+            self.__screen.blit(self.__bg, (0, 0))
+
         self.__level = LevelManager.load_level(path)
         self.__blocks = self.__level.get_blocks()
         self.__entities = self.__get_entities_group()
@@ -70,7 +74,8 @@ class Game:
 
             # render
             self.__entities.clear(self.__camera, self.__bg)
-            self.__camera.blit(self.__player.render_player_debug_info(), (self.__camera.get_pos_inverted()))
+            if DEBUG:
+                self.__camera.blit(self.__player.render_player_debug_info(), (self.__camera.get_pos_inverted()))
             self.__entities.draw(self.__camera)
 
             self.__screen.blit(self.__camera, self.__camera.get_pos())

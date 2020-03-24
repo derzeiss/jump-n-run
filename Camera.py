@@ -29,4 +29,4 @@ class Camera(pygame.Surface):
         self.__max_x = -self.__level.get_length() + WIDTH
 
     def update(self) -> None:
-        self.__x = max(self.__max_x, min(0, WIDTH_2 - self.__player.rect.x))
+        self.__x = min(0, max(self.__max_x, WIDTH_2 - self.__player.rect.x))
