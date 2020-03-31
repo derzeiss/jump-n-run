@@ -1,5 +1,19 @@
+import pygame
+
 from Keys import Keys
-from config import *
+from config import COL_PLAYER, \
+    WIDTH, \
+    HEIGHT, \
+    FONT, \
+    BLOCK_DEADLY, \
+    PLAYER_AX, \
+    PLAYER_AX_RUNNING, \
+    PLAYER_AY, \
+    PLAYER_AY_JUMPING, \
+    PLAYER_VX_JUMP_MOD, \
+    PLAYER_VX_MAX, \
+    PLAYER_VX_MAX_RUNNING, \
+    PLAYER_VY_MAX
 
 
 class Player(pygame.sprite.Sprite):
@@ -15,11 +29,13 @@ class Player(pygame.sprite.Sprite):
 
         self.__spawn_point = (0, 0)
 
+        self.__can_jump = True
         self.__in_air: bool = False
         self.__vx: int = 0
         self.__vy: int = 0
         self.__ax: int = 0
         self.__ay: int = 0
+        self.__vx_max: int = PLAYER_VX_MAX
 
     def update(self):
         self.__handle_input()
@@ -28,35 +44,59 @@ class Player(pygame.sprite.Sprite):
     def __handle_input(self):
         keys_pressed = pygame.key.get_pressed()
 
+        if keys_pressed[self.__keys.run]:
+            self.__vx_max = PLAYER_VX_MAX_RUNNING
+            ax = PLAYER_AX_RUNNING
+        else:
+            self.__vx_max = PLAYER_VX_MAX
+            ax = PLAYER_AX
+
         # left/right
         if keys_pressed[self.__keys.left]:
-            self.__ax = -PLAYER_AX
+            self.__ax = -ax
         elif keys_pressed[self.__keys.right]:
-            self.__ax = PLAYER_AX
+            self.__ax = ax
         else:
             self.__ax = 0
 
         # jump
-        if not self.__in_air and keys_pressed[self.__keys.jump]:
-            self.__vy = -PLAYER_VY_MAX
+        if not self.__in_air and self.__can_jump and keys_pressed[self.__keys.jump]:
+            self.__vy = -PLAYER_VY_MAX - abs(self.__vx) * PLAYER_VX_JUMP_MOD
             self.__in_air = True
+            self.__can_jump = False
+
+        # can_jump
+        if not self.__in_air and not self.__can_jump and not keys_pressed[self.__keys.jump]:
+            self.__can_jump = True
+
+        # gravity
+        if keys_pressed[self.__keys.jump]:
+            self.__ay = PLAYER_AY_JUMPING
+        else:
+            self.__ay = PLAYER_AY
 
     def __update(self):
-        # gravity
-        self.__ay = min(self.__ay + PLAYER_AY, PLAYER_AY)
-
         # calc vx
-        self.__vx = round((self.__vx + self.__ax) * PLAYER_FRICTION, 2)
+        if self.__ax != 0:
+            self.__vx += self.__ax
+        # slow the player down if neither left or right is pressed
+        elif self.__vx < 0:
+            self.__vx = min(0, self.__vx + PLAYER_AX)
+        else:
+            self.__vx = max(0, self.__vx - PLAYER_AX)
+
+        # check vx limits
         if self.__ax == 0 and abs(self.__vx) < PLAYER_AX:
             self.__vx = 0
-        elif self.__vx < -PLAYER_VX_MAX:
-            self.__vx = -PLAYER_VX_MAX
-        elif self.__vx > PLAYER_VX_MAX:
-            self.__vx = PLAYER_VX_MAX
+        elif self.__vx < -self.__vx_max:
+            self.__vx = -self.__vx_max
+        elif self.__vx > self.__vx_max:
+            self.__vx = self.__vx_max
 
         # calc vy
         self.__vy = min(self.__vy + self.__ay, PLAYER_VY_MAX)
-        if abs(self.__vy > PLAYER_AY): self.__in_air = True
+        if abs(self.__vy > PLAYER_AY):
+            self.__in_air = True
 
         # set new provisional position
         self.rect = self.rect.move(self.__vx, self.__vy)
@@ -72,11 +112,11 @@ class Player(pygame.sprite.Sprite):
             if block.type == BLOCK_DEADLY:
                 return self.respawn()
 
-            self.rect.centery -= self.__vy
+            self.rect = self.rect.move(0, -self.__vy)
             collision_x = pygame.sprite.collide_rect(self, block)
             self.rect = self.rect.move(-self.__vx, self.__vy)
             collision_y = pygame.sprite.collide_rect(self, block)
-            self.rect.centerx += self.__vx
+            self.rect = self.rect.move(self.__vx, 0)
 
             if collision_x:  # collision on x-axis
                 should_handle = False
@@ -94,8 +134,8 @@ class Player(pygame.sprite.Sprite):
 
             elif collision_y:  # collision on y-axis
                 if self.rect.centery < block.rect.centery:  # player above block
-                    if self.__ay > 0:  # only reset speed if player is falling
-                        self.rect.bottom = block.rect.top
+                    self.rect = self.rect.move(0, block.rect.top - self.rect.bottom)
+                    if self.__vy > self.__ay > 0:  # only reset speed if player is falling
                         self.__ay = 0
                         self.__vy = 0
                         self.__in_air = False

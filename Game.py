@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 
 from ApplicationError import ApplicationError
@@ -14,6 +16,7 @@ from config import \
     PLAYER1_KEY_LEFT, \
     PLAYER1_KEY_RIGHT, \
     PLAYER1_KEY_JUMP, \
+    PLAYER1_KEY_RUN, \
     SCREEN
 
 
@@ -43,6 +46,7 @@ class Game:
         self.__camera = Camera(self.__player, self.__level)
         self.__bg = self.__get_bg()
         self.__player.set_spawn_point(self.__level.get_player_spawn())
+
         self.__player.respawn()
 
     def __get_entities_group(self) -> pygame.sprite.Group:
@@ -82,6 +86,10 @@ class Game:
 
             pygame.display.flip()
 
+        pygame.display.quit()
+        pygame.quit()
+        sys.exit()
+
     def get_blocks(self) -> pygame.sprite.Group:
         return self.__blocks
 
@@ -89,7 +97,7 @@ class Game:
         player_image = pygame.Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
         player_image.fill(COL_PLAYER)
         player_rect = pygame.Rect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT)
-        player_keys = Keys(PLAYER1_KEY_LEFT, PLAYER1_KEY_RIGHT, PLAYER1_KEY_JUMP)
+        player_keys = Keys(PLAYER1_KEY_LEFT, PLAYER1_KEY_RIGHT, PLAYER1_KEY_JUMP, PLAYER1_KEY_RUN)
         player = Player(self, player_keys, player_rect, player_image)
         player.respawn()
         return player
