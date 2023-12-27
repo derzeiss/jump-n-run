@@ -12,9 +12,6 @@ IMAGE_DEADLY.fill(COL_DEADLY)
 
 
 class LevelManager:
-    def __init__(self):
-        self.__level = None
-
     @staticmethod
     def load_level(path: str) -> Level:
         blocks = pygame.sprite.Group()
